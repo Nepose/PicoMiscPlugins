@@ -1,7 +1,9 @@
 <?php
 
 /**
- * OpenGraph Plugin adds auto generated OG Meta Tags for better Facebook Sharing right before closing of head.
+ * Pico SEO plugin
+ * Adds OpenGraph and Twitter meta tags, favicons 16x16 / 32x32, a set of new icons and manifest at the end of <head> section.
+ * Maybe it will at some point become real equivalent of Yoast SEO ;)
  *
  * Old version appeared to be incompatible with current Pico code, which expects different function names
  * for a plugin. New version fixes this, and adds a functionality:
@@ -9,12 +11,15 @@
  * share image when defined. This allows it to not have to parse through the page for images, and allows
  * you to give it a specific image to use for sharing.
  *
- * @author  old version Ahmet Topal, new version Bigi Lui
+ * For enhancing functionality of this plugin you should consider adding file picoseo.yml to config/ directory (file template is available on repository) and filling it. The file contains fields for links to manifest, icons etc.
+ *
+ * @author  old version Ahmet Topal, new version Bigi Lui, fork Nepose
  * @link    (old) https://github.com/ahmet2106/pico-opengraph/blob/master/at_opengraph.php
  * @link    (new) https://github.com/bigicoin/PicoMiscPlugins
+ * @link   (fork) https://github.com/Nepose/PicoMiscPlugins/blob/master/PicoSEO.php
  * @license MIT
  */
-final class PicoOpenGraph extends AbstractPicoPlugin
+final class PicoSEO extends AbstractPicoPlugin
 {
 	/**
 	 * This plugin is enabled by default?
@@ -176,15 +181,23 @@ final class PicoOpenGraph extends AbstractPicoPlugin
 				'og:site_name'			=> $this->config['site_title']
 			);
 			
+			$twitter = array(
+				'twitter:description' => $this->meta['description'],
+				'twitter:card' => $this->config['picoseo']['twitter_card']
+			);
+			
 			$meta = '';
 			
 			foreach ($properties as $prop_k => $prop_v) {
 				$meta .= "\t". sprintf('<meta property="%s" content="%s" />', $prop_k, $prop_v).PHP_EOL;
 			}
+			
 
 			for ($i = 0; $i < count($this->images); $i++) {
 				$meta .= "\t". sprintf('<meta property="%s" content="%s" />', 'og:image', $this->images[$i]).PHP_EOL;
 			}
+			
+			// Here will be twitter and other metas
 			
 			// just replace closing of head with og meta tags and close head, again
 			$output = str_replace('</head>', PHP_EOL.$meta.'</head>', $output);
